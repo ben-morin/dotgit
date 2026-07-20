@@ -26,8 +26,10 @@ progname=${0##*/}
 
 # Operate on the home directory while keeping repository metadata in ~/.dotgit.
 # Wrapping git here ensures every invocation below carries these flags.
+# -C "$HOME" runs git from the work-tree root so that repo-root-relative
+# pathspecs (built by relpath) are not re-anchored to the caller's $PWD.
 git() {
-    command git --git-dir="$HOME/.dotgit" --work-tree="$HOME" "$@"
+    command git -C "$HOME" --git-dir="$HOME/.dotgit" --work-tree="$HOME" "$@"
 }
 
 usage() {
