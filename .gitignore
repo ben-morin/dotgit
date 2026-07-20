@@ -1,0 +1,113 @@
+# =============================================================================
+# Dotfiles repository — ALLOW-LIST strategy
+# =============================================================================
+# Everything in $HOME is ignored by default. Config files are opted-in
+# explicitly below. To track a new file, add a matching `!` rule.
+#
+# Rule of thumb for nested paths: un-ignore the parent directory, re-ignore
+# its contents with `dir/*`, then un-ignore the specific files you want.
+# =============================================================================
+
+# --- Ignore everything by default -------------------------------------------
+/*
+
+# --- Repo meta --------------------------------------------------------------
+!/.gitignore
+!/.github/
+/.github/*
+!/.github/README.md
+
+# --- Shell (zsh) ------------------------------------------------------------
+!/.zshenv
+!/.zprofile
+!/.zshrc
+!/.zshrc-alias
+!/.zshrc-func
+!/.zshrc-prompt
+!/.hushlogin
+
+# Secrets: real values live in .zshrc-secrets (ignored); track only the template.
+# /.zshrc-secrets stays ignored via the default /* rule — do NOT add a `!` for it.
+!/.zshrc-secrets.example
+
+# =============================================================================
+# ~/.config — opt in per-tool
+# =============================================================================
+!/.config/
+/.config/*
+
+# git
+!/.config/git/
+
+# terminal / prompt
+!/.config/ghostty/
+!/.config/starship/
+
+# atuin (shell history tool) — config only, never the sync key/session
+!/.config/atuin/
+/.config/atuin/*
+!/.config/atuin/config.toml
+!/.config/atuin/atuin-arrows.zsh
+!/.config/atuin/themes/
+
+# vim — rc only, not the plugin pack
+!/.config/vim/
+/.config/vim/*
+!/.config/vim/vimrc
+
+# k9s (kubernetes TUI) — config/skins, no secrets
+!/.config/k9s/
+
+# homebrew — the list of explicitly-requested packages
+!/.config/homebrew/
+/.config/homebrew/*
+!/.config/homebrew/Brewfile
+
+# dolphie (mysql monitor) — config only; credentials live in ~/.config/mysql/mylogin.cnf (ignored)
+!/.config/dolphie/
+/.config/dolphie/*
+!/.config/dolphie/dolphie.cnf
+!/.config/dolphie/dolphie_hosts
+
+# helm — repo definitions
+!/.config/helm/
+/.config/helm/*
+!/.config/helm/repositories.yaml
+
+# mole (disk cleaner) — config/whitelists, not logs
+!/.config/mole/
+/.config/mole/*
+!/.config/mole/whitelist
+!/.config/mole/purge_paths
+!/.config/mole/status_prefs
+
+# =============================================================================
+# ~/.ssh — CONFIG ONLY. Private keys, known_hosts, authorized_keys stay ignored.
+# =============================================================================
+!/.ssh/
+/.ssh/*
+!/.ssh/config
+
+# =============================================================================
+# ~/.gnupg — CONFIG ONLY (*.conf). Keyrings/trustdb/sockets stay ignored.
+# =============================================================================
+!/.gnupg/
+/.gnupg/*
+!/.gnupg/*.conf
+
+# =============================================================================
+# ~/bin — opt in per-script, all others stay ignored.
+# =============================================================================
+!/bin/
+/bin/*
+!/bin/dotgit-add
+
+# =============================================================================
+# Never track — secrets, state, caches (explicit belt-and-suspenders)
+# =============================================================================
+# .config/gh/hosts.yml          (github oauth token)
+# .config/mysql/mylogin.cnf     (obfuscated db credentials)
+# .config/op/                   (1password cli)
+# .ssh/id_*, .ssh/*_ed25519, .ssh/known_hosts, .ssh/authorized_keys
+# .gnupg/*.d/, .gnupg/*.gpg, .gnupg/S.*
+# .history/, .*_history, .DS_Store

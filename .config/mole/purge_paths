@@ -1,0 +1,13 @@
+# Mole Purge Paths - Auto-discovered project directories
+# Edit this file to customize, or run: mo purge --paths
+# Add one path per line (supports ~ for home directory)
+
+~/IdeaProjects
+~/PhpstormProjects
+~/PycharmProjects
+~/WebstormProjects
+
+~/bin-old
+~/projects
+~/sevence-dev
+~/zebraworks-dev

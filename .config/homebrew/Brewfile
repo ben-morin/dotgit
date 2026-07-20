@@ -1,0 +1,112 @@
+tap "atlassian/acli", trusted: true
+tap "shivammathur/extensions", trusted: true
+tap "shivammathur/php", trusted: true
+tap "teamookla/speedtest", trusted: true
+# Improved shell history for zsh, bash, fish and nushell
+brew "atuin", restart_service: :changed
+# Zstandard is a real-time compression algorithm
+brew "zstd"
+# Microsoft Azure CLI 2.0
+brew "azure-cli"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# Command-line tool to manage cert-manager
+brew "cmctl"
+# Feature-rich top tool for monitoring MySQL
+brew "dolphie"
+# .NET Core
+brew "dotnet"
+# Like neofetch, but much faster because written mostly in C
+brew "fastfetch"
+# Terminal JSON viewer
+brew "fx"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GitHub command-line tool
+brew "gh"
+# Distributed revision control system
+brew "git"
+# GNU Privacy Guard (OpenPGP)
+brew "gnupg"
+# Open source programming language to build simple/reliable/efficient software
+brew "go"
+# GNU grep, egrep and fgrep
+brew "grep"
+# World's fastest and most advanced password recovery utility
+brew "hashcat"
+# Kubernetes package manager
+brew "helm"
+# Command-line hex viewer
+brew "hexyl"
+# User-friendly cURL replacement (command-line HTTP client)
+brew "httpie"
+# CLI wrapper for basic network utilities on macOS - ip command
+brew "iproute2mac"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Kubernetes CLI To Manage Your Clusters In Style!
+brew "k9s"
+# Tool that can switch between kubectl contexts easily and create aliases
+brew "kubectx"
+# Easily check your clusters for use of deprecated APIs
+brew "kubent"
+# Apple Silicon Monitor Top written in Go Lang
+brew "mactop"
+# Deep clean and optimize your Mac
+brew "mole"
+# Open-source, cross-platform JavaScript runtime environment
+brew "node"
+# MongoDB Shell to connect, configure, query, and work with your MongoDB database
+brew "mongosh"
+# 'traceroute' and 'ping' in a single tool
+brew "mtr"
+# Open source relational database management system
+brew "mysql-client@8.4", link: true
+# Tools for one-time password authentication systems
+brew "oath-toolkit"
+# Oracle Cloud Infrastructure CLI
+brew "oci-cli"
+# Swiss-army knife of markup format conversion
+brew "pandoc"
+# PDF rendering library (based on the xpdf-3.0 code base)
+brew "poppler"
+# Monitor data's progress through a pipe
+brew "pv"
+# Perl-powered file rename script with many helpful built-ins
+brew "rename"
+# X.509 TLS certificate reader and creator
+brew "showcert"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Tail multiple Kubernetes pods & their containers
+brew "stern"
+# Extremely fast Python package installer and resolver, written in Rust
+brew "uv"
+# Vi 'workalike' with many additional features
+brew "vim"
+# Command-line tool for Vultr services
+brew "vultr-cli"
+# Terminal navigator
+brew "walk"
+# Executes a program periodically, showing output fullscreen
+brew "watch"
+# Internet file retriever
+brew "wget"
+# High-performance theorem prover
+brew "z3"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Software to interact with Atlassian Cloud from the terminal
+brew "atlassian/acli/acli", trusted: true
+# Xdebug PHP extension
+brew "shivammathur/extensions/xdebug@8.5", trusted: true
+# General-purpose scripting language
+brew "shivammathur/php/php", trusted: true
+# Ookla Speedtest
+brew "teamookla/speedtest/speedtest", trusted: true
+# Command-line interface for 1Password
+cask "1password-cli"
+krew "ingress-nginx"
+krew "krew"
+npm "ctx7"
+npm "sass-migrator"

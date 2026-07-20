@@ -1,0 +1,72 @@
+search_mode = "daemon-fuzzy"
+filter_mode = "session-preload"
+# workspaces = false
+style = "compact"
+inline_height = 0
+show_numeric_shortcuts = false
+
+history_filter = [
+  "^ ",
+#  "^cdi?( |$)",
+  "^zi?( |$)",
+  "^c ?d(\\.+|$)",
+  "^l ?s( la?|-|$)",
+  "^ex?it"
+]
+
+# cwd_filter = [
+#   "^/very/secret/area",
+# ]
+
+show_tabs = false
+enter_accept = true
+command_chaining = true
+prefers_reduced_motion = true
+
+[daemon]
+enabled = true
+autostart = false
+
+[logs]
+enabled = false
+
+[ai]
+enabled = true
+
+[keys]
+scroll_exits = false
+# exit_past_line_start = true
+# accept_past_line_end = true
+# accept_past_line_start = false
+# accept_with_backspace = false
+
+[sync]
+records = true
+
+[search]
+# filters = [ "global", "host", "session", "session-preload", "workspace", "directory" ]
+filters = [ "global", "session", "workspace", "directory" ]
+authors = [ "$all-user" ]
+
+[theme]
+name = "seven"
+
+[ui]
+## Columns to display in the interactive search, from left to right.
+## The selection indicator (" > ") is always shown first implicitly.
+##
+## Each column can be specified as a simple string (uses default width)
+## or as an object with type, width, and expand:
+##   { type = "directory", width = 30, expand = true }
+##
+## Available column types (with default widths):
+##   duration  (5)  - Command execution duration (e.g., "123ms")
+##   time      (8)  - Relative time since execution (e.g., "59m ago")
+##   datetime  (16) - Absolute timestamp (e.g., "2025-01-22 14:35")
+##   directory (20) - Working directory (truncated if too long)
+##   host      (15) - Hostname where command was run
+##   user      (10) - Username
+##   exit      (3)  - Exit code (colored by success/failure)
+##   command   (*)  - The command itself (expands by default)
+##
+columns = ["time", "command"]

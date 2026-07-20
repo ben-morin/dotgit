@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+#
+# add-dotfile — add a file or directory to the dotfiles repository using the
+# allow-list .gitignore strategy, generating the required un-ignore rules
+# automatically (un-ignore each parent dir, re-ignore its contents, then
+# un-ignore the target). Only missing rules are appended, so it is safe to
+# re-run.
+#
+# Usage:
+#   add-dotfile [options] <path>...
+#
+# Options:
+#   -c, --check     Report whether each path is tracked, ignored, or neither.
+#                   Makes no changes.
+#   -n, --dry-run   Print the .gitignore lines that would be added; change
+#                   nothing and stage nothing.
+#   -h, --help      Show this help and exit.
+#
+# Paths may be given absolute or relative to the current directory. Without
+# -c/-n each path's rules are appended to .gitignore and the path is staged
+# with `git add`; commit yourself when ready.
+
+set -euo pipefail
+
+progname=${0##*/}
+
+# Operate on the home directory while keeping repository metadata in ~/.dotgit.
+# Wrapping git here ensures every invocation below carries these flags.
+git() {
+    command git --git-dir="$HOME/.dotgit" --work-tree="$HOME" "$@"
+}
+
+usage() {
+    cat <<EOF
+Usage: $progname [options] <path>...
+
+Add a file or directory to the dotfiles repository using the allow-list
+.gitignore strategy. Required un-ignore rules are generated automatically;
+only missing lines are appended, and the path is staged with git add.
+
+Options:
+  -c, --check     Report whether each path is tracked, ignored, or neither.
+                  Makes no changes to .gitignore or the index.
+  -n, --dry-run   Print the .gitignore lines that would be added; change
+                  nothing.
+  -h, --help      Show this help and exit.
+
+Examples:
+  $progname .config/nvim            # track a whole directory
+  $progname .config/bat/config      # track a single file
+  $progname --check .ssh/config     # is it tracked / ignored / neither?
+EOF
+}
+
+die() { printf '%s: %s\n' "$progname" "$*" >&2; exit 1; }
+
+# --- locate the repo -------------------------------------------------------
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
+    || die "not inside a git repository"
+gitignore="$repo_root/.gitignore"
+
+# --- helpers ---------------------------------------------------------------
+
+# Absolute path (no realpath dependency; does not resolve symlinks/..).
+abspath() {
+    case "$1" in
+        /*) printf '%s' "$1" ;;
+        *)  printf '%s' "$PWD/$1" ;;
+    esac
+}
+
+# Print the repo-root-relative path, or fail if the target is outside the repo.
+relpath() {
+    local abs=${1%/}
+    case "$abs/" in
+        "$repo_root/"*) : ;;
+        *) printf '%s: %s is outside the repository (%s)\n' \
+               "$progname" "$abs" "$repo_root" >&2; return 1 ;;
+    esac
+    local rel=${abs#"$repo_root"/}
+    if [ "$abs" = "$repo_root" ] || [ -z "$rel" ]; then
+        printf '%s: refusing to operate on the repository root\n' \
+            "$progname" >&2
+        return 1
+    fi
+    printf '%s' "$rel"
+}
+
+# Emit, in dependency order, the gitignore rules that un-ignore <rel>.
+#   $1 = rel path   $2 = "dir" | "file"
+# Intermediate directories each need the "un-ignore dir / re-ignore contents"
+# pair; the target gets a trailing-slash negation (dir) or a plain one (file).
+gen_rules() {
+    local rel="$1" kind="$2" acc="" i
+    local IFS='/'
+    local parts
+    read -ra parts <<<"$rel"
+    local n=${#parts[@]}
+    for ((i = 0; i < n - 1; i++)); do
+        acc+="${parts[i]}"
+        printf '!/%s/\n' "$acc"
+        printf '/%s/*\n' "$acc"
+        acc+="/"
+    done
+    if [ "$kind" = dir ]; then
+        printf '!/%s/\n' "$rel"
+    else
+        printf '!/%s\n' "$rel"
+    fi
+}
+
+# Report tracked / ignored / neither for a repo-relative path.
+check_path() {
+    local rel="$1" status extra=""
+    [ -e "$repo_root/$rel" ] || extra=" [missing on disk]"
+    if [ -n "$(git ls-files -- "$rel")" ]; then
+        status="tracked"
+    elif git check-ignore -q -- "$rel"; then
+        status="ignored"
+    else
+        status="untracked, not ignored"
+    fi
+    printf '  %-32s %s%s\n' "$rel" "$status" "$extra"
+}
+
+# --- parse arguments -------------------------------------------------------
+mode="add"
+paths=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -c|--check)   mode="check" ;;
+        -n|--dry-run) mode="dryrun" ;;
+        -h|--help)    usage; exit 0 ;;
+        --)           shift; break ;;
+        -*)           printf '%s: unknown option: %s\n' "$progname" "$1" >&2
+                      usage >&2; exit 2 ;;
+        *)            paths+=("$1") ;;
+    esac
+    shift
+done
+[ $# -gt 0 ] && paths+=("$@")
+[ ${#paths[@]} -gt 0 ] || { printf '%s: no path given\n' "$progname" >&2
+    usage >&2; exit 2; }
+
+# --- check mode ------------------------------------------------------------
+if [ "$mode" = check ]; then
+    printf 'Status relative to %s:\n' "$repo_root"
+    for p in "${paths[@]}"; do
+        rel=$(relpath "$(abspath "$p")") || continue
+        check_path "$rel"
+    done
+    exit 0
+fi
+
+# --- add / dry-run ---------------------------------------------------------
+staged_any=0
+for p in "${paths[@]}"; do
+    abs=$(abspath "$p")
+    [ -e "$abs" ] || { printf '%s: %s does not exist\n' "$progname" "$p" >&2
+        continue; }
+    rel=$(relpath "$abs") || continue
+    [ -d "$abs" ] && kind=dir || kind=file
+
+    if [ -n "$(git ls-files -- "$rel")" ]; then
+        printf '%s: %s is already tracked; skipping\n' "$progname" "$rel" >&2
+        continue
+    fi
+
+    # If the allow-list already covers it (e.g. a parent dir is tracked), we
+    # must NOT re-ignore the parent's contents — just stage the path.
+    if ! git check-ignore -q -- "$rel"; then
+        if [ "$mode" = dryrun ]; then
+            printf '# %s (%s): already un-ignored; would stage, no rules needed\n' \
+                "$rel" "$kind"
+        else
+            git add -- "$rel"
+            printf '%s already un-ignored; staged\n' "$rel"
+            staged_any=1
+        fi
+        continue
+    fi
+
+    # Collect the rules that are not already present in .gitignore.
+    missing=()
+    while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        grep -qxF -- "$line" "$gitignore" 2>/dev/null || missing+=("$line")
+    done < <(gen_rules "$rel" "$kind")
+
+    if [ "$mode" = dryrun ]; then
+        printf '# %s (%s) — would add to .gitignore:\n' "$rel" "$kind"
+        if [ ${#missing[@]} -gt 0 ]; then
+            printf '  %s\n' "${missing[@]}"
+        else
+            printf '  (all rules already present)\n'
+        fi
+        continue
+    fi
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        {
+            printf '\n# added by %s: %s\n' "$progname" "$rel"
+            printf '%s\n' "${missing[@]}"
+        } >>"$gitignore"
+        printf 'Updated .gitignore (+%d line(s)) for %s\n' \
+            "${#missing[@]}" "$rel"
+        git add -- "$gitignore"
+    fi
+    git add -- "$rel"
+    printf 'Staged %s\n' "$rel"
+    staged_any=1
+done
+
+if [ "$mode" = add ] && [ "$staged_any" -eq 1 ]; then
+    printf '\nDone. Review with `git status` and commit when ready.\n'
+fi

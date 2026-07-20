@@ -1,0 +1,12 @@
+[theme]
+name = "seven"
+
+[colors]
+#AlertInfo = "blue"
+#AlertWarn = "#ef9f76"
+#AlertError = "blue"
+#Annotation = "#8caaee"
+#Base = "red"
+#Guidance = "#949cbb"
+#Important = "red"
+#Title = "red"

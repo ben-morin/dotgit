@@ -1,0 +1,4 @@
+zwmysqltest.mysql.database.azure.com
+zwmysqlprod.mysql.database.azure.com
+zwmysqlprod-read.mysql.database.azure.com
+localhost

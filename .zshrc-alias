@@ -1,0 +1,59 @@
+alias pmset-ls="pmset -g sched"
+alias pmset-kill="sudo pmset schedule cancelall"
+
+alias tm-stream="log stream --level debug --predicate 'subsystem == \"com.apple.TimeMachine\"' --style compact"
+alias tm-log="log show --predicate 'subsystem == "com.apple.TimeMachine"' --info --last 24h"
+alias tm-activity="log stream --predicate 'process=="backupd"' --info"
+
+alias md-what="sudo fs_usage -w -f filesys mdworker | egrep \"open\"."
+
+alias fix-time="sudo sntp -Ss time.apple.com"
+
+alias path='echo -e ${PATH//:/\\n}'
+
+alias php_="XDEBUG_MODE=off php"
+alias php__="XDEBUG_MODE=off php -d opcache.enable_cli=1"
+alias php___="XDEBUG_MODE=off php -d opcache.enable_cli=1 -d opcache.jit=on -d opcache.jit_buffer_size=128M"
+alias php____="XDEBUG_MODE=off php -d opcache.enable_cli=1 -d opcache.jit=function -d opcache.jit_buffer_size=128M"
+alias aoc='(){ cd "$(command aoc "$@")" ;}'
+alias aoc-php='(){ command aoc --php "$@" ;}'
+alias aoc-post='(){ command aoc --post "$@" ;}'
+
+alias convert-pptx='find . -name "*.pptx" -exec pptx2pdf {} \;'
+alias convert-docx='find . -name "*.docx" -exec docx2pdf {} \;'
+
+# brew...
+alias brew-requested='brew list --installed-on-request --full-name'
+
+# plist
+alias plist2bin="plutil -convert binary1"
+alias plist2xml="plutil -convert xml1"
+
+# lowpri_throttle_enabled
+alias lowpri_throttle_disable="sudo sysctl debug.lowpri_throttle_enabled=0"
+alias lowpri_throttle_enable="sudo sysctl debug.lowpri_throttle_enabled=1"
+
+# mtr
+alias mtr='sudo mtr'
+
+# gh copilot
+#eval "$(gh copilot alias -- zsh)"
+
+# vultr-cli
+alias vultr-bt="env VULTR_API_KEY=\$VULTR_API_KEY_BT vultr"
+alias vultr-y2b="env VULTR_API_KEY=\$VULTR_API_KEY_Y2B vultr"
+
+# walk
+alias walk='cd "$(command walk "$@")"'
+
+# cnm
+alias docker-1750="~/Desktop/CNM/CIS-1750/docker/run.sh" 
+
+# spin
+alias spin="STTY=-icanon command spin"
+
+# docker
+alias buildx='docker buildx build --platform linux/arm64,linux/amd64'
+
+# beta...
+alias stop-agents='pkill -STOP -x BiomeAgent && sudo pkill -9 -x dasd'

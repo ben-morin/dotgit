@@ -1,0 +1,16 @@
+# dotgit
+dotgit() {
+    git --git-dir="$HOME/.dotgit" --work-tree="$HOME" "$@"
+}
+
+compdef _git dotgit
+
+# k8s
+function namespace-get-all {
+	kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found -nl -n "$@"
+}
+
+#jq
+function jq2csv {
+	jq -r '(map(keys) | add | unique) as $cols | $cols, (.[] | [.[$cols[]]]) | @csv' "$@"
+}	

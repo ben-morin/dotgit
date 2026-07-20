@@ -1,0 +1,32 @@
+[dolphie]
+ssl_mode = REQUIRED
+host_cache_file = /Users/ben/.config/dolphie/dolphie_host_cache
+tab_setup_file = /Users/ben/.config/dolphie/dolphie_hosts
+
+[credential_profile_local]
+login_path = local
+tab_title = local
+
+[credential_profile_test]
+login_path = test
+tab_title = test
+
+[credential_profile_prod]
+login_path = prod
+tab_title = prod
+
+[credential_profile_prod-read]
+login_path = prod-read
+tab_title = prod-read
+
+[credential_profile_ca]
+login_path = ca
+tab_title = ca
+
+[credential_profile_uk]
+login_path = uk
+tab_title = uk
+
+[prod]
+1={"host":"zwmysqlprod.mysql.database.azure.com", "credential_profile": "prod"}
+2={"host":"zwmysqlprod-read.mysql.database.azure.com", "credential_profile": "prod-read"}

@@ -1,0 +1,103 @@
+" ============================================================================
+" XDG base directory setup
+" Vim 9.2 reads this vimrc from $XDG_CONFIG_HOME/vim/vimrc natively, but
+" runtimepath, viminfo, swap/backup/undo and netrw all still default to $HOME.
+" Point them at XDG locations here. Guard with defaults so this also works when
+" launched without the XDG_* vars set (cron, sudo -s, etc.).
+" ============================================================================
+if empty($XDG_CONFIG_HOME) | let $XDG_CONFIG_HOME = expand('~/.config')      | endif
+if empty($XDG_DATA_HOME)   | let $XDG_DATA_HOME   = expand('~/.local/share') | endif
+if empty($XDG_STATE_HOME)  | let $XDG_STATE_HOME  = expand('~/.local/state') | endif
+
+" plugins / runtime files (incl. pack/) under $XDG_CONFIG_HOME/vim
+set runtimepath^=$XDG_CONFIG_HOME/vim
+set runtimepath+=$XDG_CONFIG_HOME/vim/after
+let &packpath = &runtimepath
+
+" persistent state -> $XDG_STATE_HOME, regenerable data -> $XDG_DATA_HOME
+set viminfofile=$XDG_STATE_HOME/vim/viminfo
+set directory=$XDG_STATE_HOME/vim/swap//
+set backupdir=$XDG_STATE_HOME/vim/backup//
+set undodir=$XDG_STATE_HOME/vim/undo//
+let g:netrw_home = $XDG_DATA_HOME . '/vim'
+
+" create the dirs vim won't create itself
+for s:d in [$XDG_STATE_HOME . '/vim/swap', $XDG_STATE_HOME . '/vim/backup', $XDG_STATE_HOME . '/vim/undo', $XDG_DATA_HOME . '/vim']
+  if !isdirectory(s:d) | call mkdir(s:d, 'p', 0700) | endif
+endfor
+
+" ============================================================================
+" General settings
+" ============================================================================
+" When started as "evim", evim.vim will already have done these settings.
+if v:progname =~? "evim"
+  finish
+endif
+
+" Use Vim settings, rather then Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+set nocompatible
+
+" allow backspacing over everything in insert mode
+set backspace=indent,eol,start
+
+"set backup        " keep a backup file (backupdir set above)
+set history=50    " keep 50 lines of command line history
+set ruler         " show the cursor position all the time
+set showcmd       " display incomplete commands
+set incsearch     " do incremental searching
+set tabstop=2     " set tabstop to 2 spaces
+set shiftwidth=2  " set indentation to 2 spaces
+set noexpandtab   " don't replace tabs with spaces
+set nopaste         " set paste mode by default
+
+" Allow saving of files as sudo...
+command Wsudo :execute ':silent w !sudo tee % > /dev/null' | :edit!
+
+command Paste :execute ':r !pbpaste'
+
+" Don't use Ex mode, use Q for formatting
+map Q gq
+
+" Switch syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+  colorscheme default
+endif
+
+" Only do this part when compiled with support for autocommands.
+if has("autocmd")
+
+  " Mac OS X (and maybe FreeBSD) crontab is picky.
+  au BufRead,BufNewFile /tmp/crontab* set nobackup nowritebackup
+
+  " Enable file type detection.
+  " Use the default filetype settings, so that mail gets 'tw' set to 72,
+  " 'cindent' is on in C files, etc.
+  " Also load indent files, to automatically do language-dependent indenting.
+  filetype plugin indent on
+
+  " Put these in an autocmd group, so that we can delete them easily.
+  augroup vimrcEx
+  au!
+
+  " For all text files set 'textwidth' to 78 characters.
+  autocmd FileType text setlocal textwidth=78
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it when the position is invalid or when inside an event handler
+  " (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
+
+  augroup END
+
+else
+
+  set autoindent    " always set autoindenting on
+
+endif " has("autocmd")
